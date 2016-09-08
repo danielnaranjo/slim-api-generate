@@ -66,23 +66,6 @@ function renameMethod(){
 	foreach ($files as &$value) {
 		// check if file
 		if ($value!='.' && $value!='..' && $value!='_commons.php') {
-			/*
-			// open a file until finish
-			$handle = fopen($folder.$value, 'r') or die('Error: renameMethod/'.$folder.$value);
-			// Is it, ok?
-			if ($handle) {
-				// cursor by line
-			    while (($line = fgets($handle)) !== false) {
-			        // replace
-					$line=str_replace("@", "$", $line);
-			    }
-			    $status="OK";
-			    // close
-			    fclose($handle);
-			} else {
-				//syslog(LOG_ERR, "Error on open: ".$folder.$value);
-				$status="Fuck";
-			}*/
 			replaceMethod($folder.$value);
 		}// only files
 	}//foreach
@@ -180,8 +163,6 @@ $app->get('/database', function () {
 	   		$current_data = $row_table[0];
 			// contenido del archivo
 			$addLine.= "//    ".$current_data."\n";
-			// agrego al array
-			//array_push($table, $current_data);		
 	   	}
 
 	   	// comments on files
@@ -190,8 +171,8 @@ $app->get('/database', function () {
 	   	$addLine.= "/* This will be remove on regenerate. */\n";
 	   	$addLine.= "/* Attach custom routes on routes/_commons.php */\n";
 	   	$addLine.= "\n\n\n";
+	   	
 	   	// HTTP methods
-
 	   	$addLine.= "/* method get */\n";
 		$addLine.= "@app->get('/v1/$current_table', function () { \n";
 		$addLine.= "    @sql_query=\"SELECT * FROM $current_table\"; \n";
@@ -242,20 +223,16 @@ $app->get('/database', function () {
 
 		// genera el archivo por table
 		createFile(ROUTESFOLDER, $current_table.'.php', $addLine);
-   		//array_push($data, $table);
    	}
 
    	$data['methods'] = 'done'; 
    	$data['mapping'] = 'done';
    	// Commons routes and associations routes
-   	//createFile('routes', '_commons.php',"<?php\n/* Commons routes and associations routes */");
-   	$data['commons'] = createFile('routes', '_commons.php',"<?php\n/* Commons routes and associations routes */");//'done';
+   	$data['commons'] = createFile('routes', '_commons.php',"<?php\n/* Commons routes and associations routes */");
    	// Create routes configuration file
-   	//createRoutes();
-   	$data['routing'] = createRoutes();//'done';
+   	$data['routing'] = createRoutes();
    	// replace namespaces on every route file
-   	//renameMethod();
-   	$data['renaming'] = renameMethod(); //'done';
+   	$data['renaming'] = renameMethod();
    	$data['status'] = 'success';
    	// done!
 
