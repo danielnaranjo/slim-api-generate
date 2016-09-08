@@ -1,0 +1,7 @@
+RewriteEngine On 
+RewriteCond %{REQUEST_FILENAME} !-f 
+RewriteRule ^(.*)$ %{ENV:BASE}index.php [QSA,L]
+
+# http://stackoverflow.com/questions/14467673/enable-cors-in-htaccess
+Header add Access-Control-Allow-Origin "*"
+Header add Access-Control-Allow-Methods: "GET,POST,OPTIONS,DELETE,PUT"
