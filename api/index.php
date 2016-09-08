@@ -199,7 +199,7 @@ $app->get('/database', function () {
 		$addLine.= "    while (@row = mysql_fetch_array(@result)) { \n";
 		$addLine.= "        echoResponse(200,@row);\n";
 		$addLine.= "    }\n";
-	   	$addLine.= "}\n";
+	   	$addLine.= "});\n";
 
 	   	$addLine.= "/* method getbyid */\n";
 		$addLine.= "@app->get('/v1/$current_table/:id', function (@id) { \n";
@@ -259,12 +259,11 @@ $app->get('/database', function () {
    	$data['status'] = 'success';
    	// done!
 
-   	$data['whoami'] = exec('whoami');
    	replaceMethod(ROUTESFOLDER.'task.php');
    	echoResponse(200, $data);
 });
 
-//require 'routes.php';
+include('routes.php');
 
 $app->run();
 ?>
