@@ -15,7 +15,7 @@ ini_set("display_errors","On");
 ini_set("display_startup_errors","On");
 // timezone
 date_default_timezone_set("America/Argentina/Buenos_Aires");
-define('GENERATED',date("d/m/Y H:i:s"));
+define('GENERATED',date("d/m/Y H:i:s T"));
 
 
 include('config.php');
@@ -103,8 +103,8 @@ $app->get('/', function () {
 
 });
 
-///start/api/installer
-$app->get('/database', function () {
+//start/api/installer
+$app->get('/start/api/installer', function () {
    	$sql = "SHOW tables";
    	$result_database = mysql_query($sql) or die('Query failed: '. $sql .'>'. mysql_error());
    	$total = mysql_num_rows($result_database);
@@ -141,7 +141,9 @@ $app->get('/database', function () {
 				// insert
 				$fieldstoadd.="'NULL',";
 			} else {
+				// insert values
 				$fieldstoadd.="'@$current_data',";
+				// form post request
 				$fieldspost .= "@$current_data = @app->request->params('$current_data');\n\r";
 			}
 			// agrego al update
@@ -160,9 +162,17 @@ $app->get('/database', function () {
 		$addLine.= "@app->get('/v1/$current_table', function () { \n";
 		$addLine.= "    @sql_query=\"SELECT * FROM $current_table\"; \n";
 		$addLine.= "    @result = mysql_query(@sql_query) or die('Error: Can not execute $current_table action'); \n";
+		//$addLine.= "    @row = mysql_fetch_assoc(@result);//@data=array();\n";
+		//$addLine.= "    @total = mysql_num_rows(@result);//@data=array();\n";
+		$addLine.= "    @data=array();\n";
 		$addLine.= "    while (@row = mysql_fetch_assoc(@result)) { \n";
-		$addLine.= "        echoResponse(200,@row);\n";
+		//$addLine.= "        @data_row=array();\n";
+		//$addLine.= "        @data_row['results']=@row;\n";
+		$addLine.= "        array_push(@data, @row);\n";//echoResponse(200,@row);\n";
+		//$addLine.= "        echoResponse(200,@row);\n";
 		$addLine.= "    }\n";
+		//$addLine.= "    @data['total']=@total;\n";
+		$addLine.= "    echoResponse(200,@data);\n";
 	   	$addLine.= "});\n";
 
 	   	$addLine.= "/* method getbyid */\n";
@@ -218,13 +228,17 @@ $app->get('/database', function () {
    	// replace namespaces on every route file
    	$data['renaming'] = renameMethod();
    	$data['status'] = 'success';
+   	$data['finished'] = GENERATED;
    	// done!
 
-   	replaceMethod(ROUTESFOLDER.'task.php');
+   	//replaceMethod(ROUTESFOLDER.'task.php');
    	echoResponse(200, $data);
 });
 
+// dynamic routes
 include('routes.php');
 
+
+// execute app
 $app->run();
 ?>
