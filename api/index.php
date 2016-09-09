@@ -6,8 +6,17 @@ require 'Slim/Slim.php';
  
 // Creamos la aplicación.
 $app = new \Slim\Slim();
+
+// logs
 $app->config('debug', true);
 $app->log->setEnabled(true);
+error_reporting(E_ALL);
+ini_set("display_errors","On");
+ini_set("display_startup_errors","On");
+// timezone
+date_default_timezone_set("America/Argentina/Buenos_Aires");
+define('GENERATED',date("d/m/Y H:i:s"));
+
 
 include('config.php');
 // Make a database connection
@@ -16,7 +25,7 @@ include('config.php');
 // http://apievangelist.com/2013/10/21/deploy-api-mysql-to-api/
 
 function vAPI() {
-    return filemtime('index.php').' '.@date("m/d/Y H:i:s", filectime('index.php'))||'';
+    return filemtime('index.php').' '.date("m/d/Y H:i:s", filectime('index.php'));
 }
 
 function echoResponse($status_code, $response) {
@@ -79,11 +88,6 @@ function replaceMethod($filename){
 	//return $status;
 }
 
-
-$app->error(function (\Exception $e) use ($app) {
-    $app->render('error.php');
-});
-
 $app->get('/', function () {
     echo '<h1>Welcome to our API</h1><p>More information: www.loultimoenlaweb.com</p>';
     echo '<h3>If you are view this page, please contact to Web administrator.</h3>';
@@ -113,7 +117,7 @@ $app->get('/database', function () {
 		$addLine = "<?php\n";
 		$current_data = [];
 	   	// comments on files
-	   	$addLine.= "/* This file is auto generate by script */\n\n";
+	   	$addLine.= "/* This file is auto generate by script on ".GENERATED." */\n\n";
 	   	$addLine.= "/* Daniel Naranjo */\n";
 	   	$addLine.= "/* September 2016 */\n\n\n";
 	   	$addLine.= "/* Table: $current_table (structure) */\n";
@@ -178,6 +182,7 @@ $app->get('/database', function () {
 	   	// Ultima linea del archivo con el nombre de la table
 	   	$addLine.= "/* table: $current_table */\n\n\n";
 	   	$addLine.= "/* DO NOT add, edit or remove any code */\n";
+	   	$addLine.= "/* This file is auto generate by script on ".GENERATED." */\n\n";
 	   	$addLine.= "/* This will be remove on regenerate. */\n";
 	   	$addLine.= "/* Attach custom routes on routes/_commons.php */\n";
 
