@@ -92,46 +92,6 @@ $app->get('/', function () {
 
 });
 
-$app->get('/tables', function () {
-   
-   	$sql = "SHOW tables";
-   	$result = mysql_query($sql) or die('Query failed: '. $sql .'>'. mysql_error());
-   	$Datos = array();
-   	while ($row = mysql_fetch_array($result)){
-   		$P = array();
-   		$P = $row[0];
-   		array_push($Datos, $P);	
-   }
-   echoResponse(200, $Datos);
-});
-
-
-$app->get('/column/:column', function ($column) {
-
-   	$sql = "SHOW COLUMNS FROM $column";
-   	$result = mysql_query($sql) or die('Query failed: '. $sql .'>'. mysql_error());
-   	$Datos = array();
-   	while ($row = mysql_fetch_array($result)){
-   		$P = array();
-   		$P = $row[0];
-   		array_push($Datos, $P);	
-   }
-   echoResponse(200, $Datos);
-});
-
-
-$app->get('/v1/:table', function ($table) {
-	$sql="SELECT * FROM $table ";
-	$result = mysql_query($sql) or die('Query failed: '. $sql .' > '. mysql_error());
-	$data = array();
-
-	while ($row = mysql_fetch_assoc($result)) {
-		array_push($data, $row);
-	};
-	// Return JSON
-	echoResponse(200, $data);	
-});
-
 ///start/api/installer
 $app->get('/database', function () {
    	$sql = "SHOW tables";
@@ -177,7 +137,7 @@ $app->get('/database', function () {
 		$addLine.= "@app->get('/v1/$current_table', function () { \n";
 		$addLine.= "    @sql_query=\"SELECT * FROM $current_table\"; \n";
 		$addLine.= "    @result = mysql_query(@sql_query) or die('Error: Can not execute $current_table action'); \n";
-		$addLine.= "    while (@row = mysql_fetch_array(@result)) { \n";
+		$addLine.= "    while (@row = mysql_fetch_assoc(@result)) { \n";
 		$addLine.= "        echoResponse(200,@row);\n";
 		$addLine.= "    }\n";
 	   	$addLine.= "});\n";
@@ -186,7 +146,7 @@ $app->get('/database', function () {
 		$addLine.= "@app->get('/v1/$current_table/:id', function (@id) { \n";
 		$addLine.= "    @sql_query=\"SELECT * FROM $current_table WHERE ".$current_table."_id='@id' \"; \n";
 		$addLine.= "    @result = mysql_query(@sql_query) or die('Error: Can not execute $current_table action'); \n";
-		$addLine.= "    while (@row = mysql_fetch_array(@result)) { \n";
+		$addLine.= "    while (@row = mysql_fetch_assoc(@result)) { \n";
 		$addLine.= "        echoResponse(200,@row);\n";
 		$addLine.= "    }\n";
 	   	$addLine.= "});\n";
