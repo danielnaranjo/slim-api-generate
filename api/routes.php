@@ -2,6 +2,7 @@
 /* dynamic routes */
 include('routes/_commons.php');
 include('routes/audio.php');
+include('routes/audit.php');
 include('routes/balance.php');
 include('routes/branch.php');
 include('routes/city.php');

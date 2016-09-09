@@ -221,3 +221,5 @@ Slim/
 routes/
 _notes/
 api/config.php
+vendor/
+composer.*
