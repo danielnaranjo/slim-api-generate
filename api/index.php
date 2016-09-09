@@ -37,11 +37,16 @@ function echoResponse($status_code, $response) {
     echo json_encode($response);
 }
 
-function createFile($folder, $name, $content) {
-	$generateFile = fopen($folder.'/'.$name, "w") or die("Unable to open file: ".$folder.'/'.$name);
-	fwrite($generateFile, $content);
-	fclose($generateFile);
-	return "OK";
+function createFile($folder, $name, $content, $check) {
+	if($check==false){
+		$generateFile = fopen($folder.'/'.$name, "w") or die("Unable to open file: ".$folder.'/'.$name);
+		fwrite($generateFile, $content);
+		fclose($generateFile);
+		$status = false;
+	} else {
+		$status = true;
+	}
+	return $status;
 }
 
 function createRoutes(){
@@ -78,13 +83,15 @@ function renameMethod(){
 			replaceMethod($folder.$value);
 		}// only files
 	}//foreach
-	return $status;
+	return "OK";
 }
 
 function replaceMethod($filename){
 	$originalContent = file_get_contents($filename);
 	$newContent = str_replace('@', '$', $originalContent);
-	file_put_contents($filename, $newContent);
+	$newContent1 = str_replace(',)', ')', $newContent);
+	$newContent2 = str_replace(',  WHERE ', '  WHERE ', $newContent1);
+	file_put_contents($filename, $newContent2);
 	//return $status;
 }
 
@@ -123,10 +130,22 @@ $app->get('/database', function () {
 	   	$addLine.= "/* Table: $current_table (structure) */\n";
 
 		// recorro los campos como registros
+		$fieldstoadd="";
+		$fieldspost="";
+		$fieldstoupdate="";
 	   	while ($row_table = mysql_fetch_array($result_table)){
 	   		$current_data = $row_table[0];
 			// contenido del archivo
 			$addLine.= "//    ".$current_data."\n";
+			if($current_table."_id"==$current_data){
+				// insert
+				$fieldstoadd.="'NULL',";
+			} else {
+				$fieldstoadd.="'@$current_data',";
+				$fieldspost .= "@$current_data = @app->request->params('$current_data');\n\r";
+			}
+			// agrego al update
+			$fieldstoupdate.="$current_data='@$current_data', ";
 	   	}
 
 	   	// comments on files
@@ -164,17 +183,17 @@ $app->get('/database', function () {
 
 	   	$addLine.= "/* method put */\n";
 		$addLine.= "@app->put('/v1/$current_table/:id', function (@id) { \n";
-		$addLine.= "    @sql_query=\"UPDATE $current_table SET WHERE ".$current_table."_id='@id' \"; \n";
+		$addLine.= "    @sql_query=\"UPDATE $current_table SET ".$fieldstoupdate." WHERE ".$current_table."_id='@id' \"; \n";
 		$addLine.= "    @result = mysql_query(@sql_query) or die('Error: Can not execute $current_table action'); \n";
 		$addLine.= "    echoResponse(200,'Updated!');\n";
 	   	$addLine.= "});\n";
 
 	   	$addLine.= "/* method post */\n";
 		$addLine.= "@app->post('/v1/$current_table', function () use (@app) { \n";
-		$addLine.= "    @app->request();";
-		$addLine.= "    //@body = @app->request()->getBody(); ";
-		$addLine.= "    //@email = @app->request->post('email'); ";
-		$addLine.= "    @sql_query=\"INSERT INTO ".$current_table." ()\"; \n";
+		$addLine.= "    @app->request();\n";
+		$addLine.= "    @body = @app->request()->getBody(); \n";
+		$addLine.= "    ".$fieldspost."\n";
+		$addLine.= "    @sql_query=\"INSERT INTO ".$current_table." VALUES (".$fieldstoadd.")\"; \n";
 		$addLine.= "    mysql_query(@sql_query) or die('Error: Can not execute $current_table action'); \n";
 		$addLine.= "    echoResponse(200,'Added!');\n";
 	   	$addLine.= "});\n";
@@ -187,13 +206,13 @@ $app->get('/database', function () {
 	   	$addLine.= "/* Attach custom routes on routes/_commons.php */\n";
 
 		// genera el archivo por table
-		createFile(ROUTESFOLDER, $current_table.'.php', $addLine);
+		createFile(ROUTESFOLDER, $current_table.'.php', $addLine,false);
    	}
 
    	$data['methods'] = 'done'; 
    	$data['mapping'] = 'done';
    	// Commons routes and associations routes
-   	$data['commons'] = createFile('routes', '_commons.php',"<?php\n/* Commons routes and associations routes */");
+   	$data['commons'] = createFile('routes', '_commons.php',"<?php\n/* Commons routes and associations routes */",true);
    	// Create routes configuration file
    	$data['routing'] = createRoutes();
    	// replace namespaces on every route file
