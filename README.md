@@ -9,6 +9,7 @@ MySQL 5.x
 Slim Framework v2.x
 
 Configurations steps
+
 1. Clone this repository
 2. Rename configuration file, ex. config.php.example
 3. Add your credentials
