@@ -10,4 +10,6 @@ define('DOMAIN','yourdomain.com');
 define('EMAIL','yourname@yourdomain.com');
 // Folders
 define('ROUTESFOLDER','routes/');
+// I use this constant to marked file integrity and know when/how
+define('GENERATED',date("d/m/Y H:i:s T"));
 ?>
