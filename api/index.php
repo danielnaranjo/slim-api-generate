@@ -14,7 +14,6 @@ ini_set("display_errors","On");
 ini_set("display_startup_errors","On");
 // timezone
 date_default_timezone_set("America/Argentina/Buenos_Aires");
-define('GENERATED',date("d/m/Y H:i:s T"));
 
 // variables and constants
 include('config.php');
