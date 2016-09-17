@@ -1,6 +1,6 @@
 # Multipurpose API generator
 
-This script generate API RESTful from database.
+This script generate API RESTful from database, it means the script read tables and columms and create method on static file, that will be added to index.php as routes
 
 Requeriments
 
