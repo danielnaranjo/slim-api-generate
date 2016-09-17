@@ -1,10 +1,9 @@
  <?php
 require 'Slim/Slim.php';
-// El framework Slim tiene definido un namespace llamado Slim
-// Por eso aparece \Slim\ antes del nombre de la clase.
+// Set a namespace called Slim
 \Slim\Slim::registerAutoloader();
  
-// Creamos la aplicación.
+// Start the application
 $app = new \Slim\Slim();
 
 // logs
